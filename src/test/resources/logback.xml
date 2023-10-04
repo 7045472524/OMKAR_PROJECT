@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true" debug="true" scanPeriod="300 seconds">
+
+    <property name="LOG_DIR" value="testlogs/"></property>
+    <property name="ARCHIVE_DIR" value="testlogs/archival/"></property>
+    <property name="FILE_NAME_PREFIX" value="nimaptest"></property>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %d{YYYY-MM-dd} %d{"HH:mm:ss,SSS"} [%-5thread] %-5level %lo{5} - %msg%n
+            </Pattern>
+        </layout>
+    </appender>
+
+    <appender name="FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}${FILE_NAME_PREFIX}.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>
+                %d{YYYY-MM-dd} %d{"HH:mm:ss,SSS"} %X{transactionId} [%-5thread] %-5level %lo{5} - %msg%n
+            </Pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${ARCHIVE_DIR}${FILE_NAME_PREFIX}.%d{yyyy-MM-dd}.%i.log.gz
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>500MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>90</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE"/>
+        <queueSize>462144</queueSize>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="FILE" />
+    </root>
+
+    <logger name="com.nimap.app" level="debug" additivity="false">
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <logger name="org.springframework" level="debug" additivity="false">
+        <appender-ref ref="ASYNC" />
+    </logger>
+
+</configuration>
